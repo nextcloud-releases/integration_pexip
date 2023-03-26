@@ -1,0 +1,12 @@
+{
+    "name": "nextcloud/integration_pexip",
+    "authors": [
+        {
+            "name": "Julien Veyssier",
+            "email": "julien-nc@posteo.net"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0"
+    }
+}
