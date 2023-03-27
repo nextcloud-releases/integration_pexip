@@ -41,7 +41,7 @@ class CleanupCalls extends Command {
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$maxAge = $input->getArgument('max_age');
-		$cleanedUp = $this->callMapper->cleanupGenerations($maxAge);
+		$cleanedUp = $this->callMapper->cleanupCalls($maxAge);
 		$output->writeln('Deleted ' . $cleanedUp . ' idle calls');
 		return 0;
 	}

@@ -81,19 +81,46 @@ class CallMapper extends QBMapper {
 
 	/**
 	 * @param string $userId
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getUserCalls(string $userId): array {
+		$qb = $this->db->getQueryBuilder();
+
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * @param string $userId
 	 * @param string $pexipId
+	 * @param string $description
+	 * @param string $pin
 	 * @param string $guestPin
-	 * @param string $adminPin
-	 * @param int $lastUsedTimestamp
+	 * @param bool $guestsCanPresent
+	 * @param bool $allowGuests
+	 * @param int|null $lastUsedTimestamp
 	 * @return Call
 	 * @throws Exception
 	 */
-	public function createCall(string $userId, string $pexipId, string $guestPin, string $adminPin, int $lastUsedTimestamp): Call {
+	public function createCall(string $userId, string $pexipId, string $description, string $pin, string $guestPin,
+							   bool $guestsCanPresent, bool $allowGuests, ?int $lastUsedTimestamp = null): Call {
 		$call = new Call();
 		$call->setUserId($userId);
 		$call->setPexipId($pexipId);
+		$call->setDescription($description);
+		$call->setPin($pin);
 		$call->setGuestPin($guestPin);
-		$call->setAdminPin($adminPin);
+		$call->setGuestsCanPresent($guestsCanPresent);
+		$call->setAllowGuests($allowGuests);
+		if ($lastUsedTimestamp === null) {
+			$lastUsedTimestamp = (new DateTime())->getTimestamp();
+		}
 		$call->setLastUsedTimestamp($lastUsedTimestamp);
 		return $this->insert($call);
 	}

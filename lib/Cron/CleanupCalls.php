@@ -45,7 +45,7 @@ class CleanupCalls extends TimedJob {
 
 	protected function run($argument) {
 		$this->logger->debug('Run cleanup job for Pexip calls');
-		$cleanedUp = $this->callMapper->cleanupGenerations();
+		$cleanedUp = $this->callMapper->cleanupCalls();
 		$this->logger->debug('Deleted ' . $cleanedUp . ' idle calls');
 	}
 }

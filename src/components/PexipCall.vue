@@ -21,7 +21,10 @@
 
 <template>
 	<div>
-		<span>{{ call.description }}</span>
+		<div class="line">
+			<label>{{ t('integration_pexip', 'Description') }}</label>
+			<span>{{ call.description }}</span>
+		</div>
 	</div>
 </template>
 

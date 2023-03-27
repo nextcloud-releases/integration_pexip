@@ -1,30 +1,24 @@
 <template>
 	<div class="pexip-picker-content">
 		<h2>
-			{{ t('integration_pexip', 'Pexip calls') }}
+			{{ t('integration_pexip', 'Pexip meetings') }}
 		</h2>
-		<!-- list of my calls -->
-		<div class="footer">
-			<NcButton class="advanced-button"
+		<div class="call-list">
+			<PexipCall v-for="call in calls"
+				:key="call.pexip_id"
+				:call="call" />
+		</div>
+		<div class="creation-toggle">
+			<NcButton class="toggle-button"
 				type="tertiary"
-				@click="showAdvanced = !showAdvanced">
+				@click="showCreation = !showCreation">
 				<template #icon>
-					<component :is="showAdvancedIcon" />
+					<component :is="showCreationIcon" />
 				</template>
-				{{ t('integration_pexip', 'Advanced options') }}
-			</NcButton>
-			<NcButton
-				type="primary"
-				:disabled="loading || !query"
-				@click="onCreate">
-				{{ t('integration_pexip', 'Generate') }}
-				<template #icon>
-					<NcLoadingIcon v-if="loading" />
-					<ArrowRightIcon v-else />
-				</template>
+				{{ t('integration_pexip', 'Create a meeting') }}
 			</NcButton>
 		</div>
-		<div v-show="showAdvanced" class="advanced">
+		<div v-show="showCreation" class="creation-form">
 			<div class="line">
 				<label for="number">
 					{{ t('integration_pexip', 'Description') }}
@@ -47,6 +41,8 @@ import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue'
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 
+import PexipCall from '../components/PexipCall.vue'
+
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
@@ -55,6 +51,7 @@ export default {
 	name: 'PexipCustomPickerElement',
 
 	components: {
+		PexipCall,
 		NcButton,
 		NcLoadingIcon,
 		ChevronRightIcon,
@@ -76,14 +73,15 @@ export default {
 	data() {
 		return {
 			loading: false,
-			showAdvanced: false,
+			calls: [],
+			showCreation: false,
 			description: '',
 		}
 	},
 
 	computed: {
-		showAdvancedIcon() {
-			return this.showAdvanced
+		showCreationIcon() {
+			return this.showCreation
 				? ChevronDownIcon
 				: ChevronRightIcon
 		},
@@ -93,9 +91,23 @@ export default {
 	},
 
 	mounted() {
+		this.getCalls()
 	},
 
 	methods: {
+		getCalls() {
+			const url = generateUrl('/apps/integration_pexip/calls')
+			return axios.post(url)
+				.then((response) => {
+					this.calls = response.data
+				})
+				.catch((error) => {
+					console.error('Pexip get calls error', error)
+					showError(t('integration_pexip', 'Error getting the Pexip calls'))
+				})
+				.then(() => {
+				})
+		},
 		onSubmit(url) {
 			this.$emit('submit', url)
 		},
@@ -140,18 +152,7 @@ export default {
 		flex-grow: 1;
 	}
 
-	.attribution {
-		color: var(--color-text-maxcontrast);
-		padding-bottom: 8px;
-	}
-
-	.input-wrapper {
-		display: flex;
-		align-items: center;
-		width: 100%;
-	}
-
-	.footer {
+	.creation-toggle {
 		width: 100%;
 		display: flex;
 		align-items: center;
@@ -162,7 +163,7 @@ export default {
 		}
 	}
 
-	.advanced {
+	.creation-form {
 		width: 100%;
 		padding: 12px 0;
 		.line {

@@ -49,8 +49,8 @@ class PexipAPIController extends Controller {
 	 */
 	public function checkCall(string $pexipId): DataResponse {
 		$response = $this->pexipService->checkCall($pexipId);
-		if (isset($response['error'])) {
-			return new DataResponse($response, Http::STATUS_BAD_REQUEST);
+		if (isset($response['status']) && $response['status'] === 'fail') {
+			return new DataResponse($response, Http::STATUS_NOT_FOUND);
 		}
 		return new DataResponse($response);
 	}
@@ -58,13 +58,27 @@ class PexipAPIController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 *
-	 * @param string $name
-	 * @param string $guestPin
-	 * @param string $adminPin
 	 * @return DataResponse
 	 */
-	public function createCall(string $name, string $guestPin = '', string $adminPin = ''): DataResponse {
-		$response = $this->pexipService->createCall($this->userId, $name, $guestPin, $adminPin);
+	public function getUserCalls(): DataResponse {
+		$response = $this->pexipService->getUserCalls($this->userId);
+		return new DataResponse($response);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 *
+	 * @param string $pexipId
+	 * @param string $description
+	 * @param string $pin
+	 * @param string $guestPin
+	 * @param bool $guestsCanPresent
+	 * @param bool $allowGuests
+	 * @return DataResponse
+	 */
+	public function createCall(string $pexipId, string $description, string $pin, string $guestPin = '',
+							   bool $guestsCanPresent = true, bool $allowGuests = true): DataResponse {
+		$response = $this->pexipService->createCall($this->userId, $pexipId, $description, $guestPin, $guestsCanPresent, $allowGuests);
 		if (isset($response['error'])) {
 			return new DataResponse($response, Http::STATUS_BAD_REQUEST);
 		}

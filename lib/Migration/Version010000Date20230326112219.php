@@ -44,13 +44,23 @@ class Version010000Date20230326112219 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 1000,
 			]);
+			$table->addColumn('description', Types::STRING, [
+				'notnull' => true,
+				'length' => 3000,
+			]);
+			$table->addColumn('pin', Types::STRING, [
+				'notnull' => true,
+				'length' => 64,
+			]);
 			$table->addColumn('guest_pin', Types::STRING, [
 				'notnull' => true,
-				'length' => 1000,
+				'length' => 64,
 			]);
-			$table->addColumn('admin_pin', Types::STRING, [
+			$table->addColumn('guests_can_present', Types::BOOLEAN, [
 				'notnull' => true,
-				'length' => 1000,
+			]);
+			$table->addColumn('allow_guests', Types::BOOLEAN, [
+				'notnull' => true,
 			]);
 			$table->addColumn('last_used_timestamp', Types::INTEGER, [
 				'notnull' => true,
