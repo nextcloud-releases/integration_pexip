@@ -57,10 +57,12 @@ class Version010000Date20230326112219 extends SimpleMigrationStep {
 				'length' => 64,
 			]);
 			$table->addColumn('guests_can_present', Types::BOOLEAN, [
-				'notnull' => true,
+				'notnull' => false,
+				'default' => 0,
 			]);
 			$table->addColumn('allow_guests', Types::BOOLEAN, [
 				'notnull' => true,
+				'default' => 0,
 			]);
 			$table->addColumn('last_used_timestamp', Types::INTEGER, [
 				'notnull' => true,
