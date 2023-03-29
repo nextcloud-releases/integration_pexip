@@ -61,8 +61,8 @@ class PexipService {
 					'call_tag' => '',
 					'pin' => $call->getPin(),
 					'guest_pin' => $call->getGuestPin(),
-					'guests_can_present' => $call->getGuestsCanPresent(),
-					'allow_guests' => $call->getAllowGuests(),
+					'guests_can_present' => (bool) $call->getGuestsCanPresent(),
+					'allow_guests' => (bool) $call->getAllowGuests(),
 					'view' => 'five_mains_seven_pips', // We choose the layout
 					'locked' => false
 				],
