@@ -138,7 +138,10 @@ class PexipService {
 		try {
 			$call = $this->callMapper->getCallFromPexipId($pexipId);
 			$this->callMapper->touchCall($call->getId());
-			return $call->jsonSerialize();
+			$callArray = $call->jsonSerialize();
+			$pexipUrl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
+			$callArray['link'] = $this->getCallLink($pexipUrl, $call->getPexipId());
+			return $callArray;
 		} catch (DoesNotExistException $e) {
 			return [
 				'error' => 'not found',

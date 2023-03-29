@@ -20,7 +20,7 @@
   -->
 
 <template>
-	<PexipCall :call="richObject.call" />
+	<PexipCall :call="richObject.call" class="call-widget" />
 </template>
 
 <script>
@@ -65,5 +65,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// nothing yet
+.call-widget {
+	padding: 12px;
+}
 </style>

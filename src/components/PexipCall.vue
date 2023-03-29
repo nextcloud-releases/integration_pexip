@@ -20,34 +20,59 @@
   -->
 
 <template>
-	<div>
-		<div class="line">
-			<label>{{ t('integration_pexip', 'Description') }}</label>
-			<span>{{ call.description }}</span>
+	<div class="pexip-call">
+		<div class="header">
+			<label v-if="!noDescriptionLabel">
+				<PexipIcon :size="20" class="icon" />
+				{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;
+			</label>
+			<span v-if="noLink"
+				class="description">
+				{{ call.description }}
+			</span>
+			<a v-else
+				:href="call.link"
+				class="description">
+				{{ call.description }}
+			</a>
+		</div>
+		<div class="content">
+			<div class="guest-allowed">
+				<AccountIcon v-if="call.allow_guests" :size="20" />
+				<AccountOffIcon v-else :size="20" />
+				{{ guestAllowedText }}
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+import AccountIcon from 'vue-material-design-icons/Account.vue'
+import AccountOffIcon from 'vue-material-design-icons/AccountOff.vue'
+
+import PexipIcon from './icons/PexipIcon.vue'
 
 export default {
 	name: 'PexipCall',
 
 	components: {
+		PexipIcon,
+		AccountIcon,
+		AccountOffIcon,
 	},
 
 	props: {
-		richObjectType: {
-			type: String,
-			default: '',
-		},
 		call: {
 			type: Object,
 			required: true,
 		},
-		accessible: {
+		noLink: {
 			type: Boolean,
-			default: true,
+			default: false,
+		},
+		noDescriptionLabel: {
+			type: Boolean,
+			default: false,
 		},
 	},
 
@@ -57,6 +82,11 @@ export default {
 	},
 
 	computed: {
+		guestAllowedText() {
+			return this.call.allow_guests
+				? t('integration_pexip', 'Guests allowed')
+				: t('integration_pexip', 'No guest access')
+		},
 	},
 
 	mounted() {
@@ -68,5 +98,31 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// nothing yet
+.pexip-call {
+	white-space: normal;
+	.header {
+		//display: flex;
+		//align-items: center;
+		> * {
+			display: inline;
+		}
+		.icon {
+			display: inline;
+			position: relative;
+			top: 4px;
+		}
+	}
+	a.hover {
+		color: var(--color-primary);
+	}
+	.description {
+		font-weight: bold;
+	}
+	.content {
+		.guest-allowed {
+			display: flex;
+			align-items: center;
+		}
+	}
+}
 </style>

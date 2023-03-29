@@ -3,12 +3,24 @@
 		<h2>
 			{{ t('integration_pexip', 'Pexip meetings') }}
 		</h2>
-		<div class="call-list">
+		<NcLoadingIcon v-if="loadingCalls" :size="20" />
+		<div v-else-if="calls.length > 0" class="call-list">
 			<PexipCall v-for="call in calls"
 				:key="call.pexip_id"
 				:call="call"
+				:no-link="true"
+				:no-description-label="true"
+				class="call"
+				tabindex="0"
+				@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
 				@click.native="$emit('submit', call.link)" />
 		</div>
+		<NcEmptyContent v-else
+			:title="t('integration_pexip', 'No meetings found')">
+			<template #icon>
+				<PexipIcon />
+			</template>
+		</NcEmptyContent>
 		<div class="creation-toggle">
 			<NcButton class="toggle-button"
 				type="tertiary"
@@ -24,7 +36,6 @@
 				<label for="desc">
 					{{ t('integration_pexip', 'Description') }}
 				</label>
-				<div class="spacer" />
 				<NcRichContenteditable
 					id="desc"
 					:value.sync="description"
@@ -36,7 +47,6 @@
 				<label for="pin">
 					{{ t('integration_pexip', 'Pin') }}
 				</label>
-				<div class="spacer" />
 				<input
 					id="pin"
 					v-model="pin"
@@ -44,20 +54,16 @@
 					:placeholder="t('integration_pexip', '1234abcd...')"
 					maxlength="64">
 			</div>
-			<NcCheckboxRadioSwitch
-				:checked.sync="allow_guests">
-				{{ t('integration_pexip', 'Allow guests') }}
-			</NcCheckboxRadioSwitch>
-			<NcCheckboxRadioSwitch
-				:checked.sync="guests_can_present"
-				:disabled="!allow_guests">
-				{{ t('integration_pexip', 'Guests can present') }}
-			</NcCheckboxRadioSwitch>
+			<div class="line">
+				<NcCheckboxRadioSwitch
+					:checked.sync="allow_guests">
+					{{ t('integration_pexip', 'Allow guests') }}
+				</NcCheckboxRadioSwitch>
+			</div>
 			<div class="line">
 				<label for="guest-pin">
 					{{ t('integration_pexip', 'Guest pin') }}
 				</label>
-				<div class="spacer" />
 				<input
 					id="guest-pin"
 					v-model="guest_pin"
@@ -65,6 +71,13 @@
 					type="text"
 					:placeholder="t('integration_pexip', '1234abcd...')"
 					maxlength="64">
+			</div>
+			<div class="line">
+				<NcCheckboxRadioSwitch
+					:checked.sync="guests_can_present"
+					:disabled="!allow_guests">
+					{{ t('integration_pexip', 'Guests can present') }}
+				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="creation-footer">
 				<NcButton class="create-button"
@@ -87,10 +100,13 @@ import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
 import ChevronRightIcon from 'vue-material-design-icons/ChevronRight.vue'
 import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue'
 
+import PexipIcon from '../components/icons/PexipIcon.vue'
+
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
 import NcRichContenteditable from '@nextcloud/vue/dist/Components/NcRichContenteditable.js'
+import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
 
 import PexipCall from '../components/PexipCall.vue'
 
@@ -102,11 +118,13 @@ export default {
 	name: 'PexipCustomPickerElement',
 
 	components: {
+		PexipIcon,
 		PexipCall,
 		NcButton,
 		NcLoadingIcon,
 		NcRichContenteditable,
 		NcCheckboxRadioSwitch,
+		NcEmptyContent,
 		ChevronRightIcon,
 		ChevronDownIcon,
 		ArrowRightIcon,
@@ -126,6 +144,7 @@ export default {
 	data() {
 		return {
 			creating: false,
+			loadingCalls: false,
 			calls: [],
 			showCreation: false,
 			description: '',
@@ -156,6 +175,7 @@ export default {
 
 	methods: {
 		getCalls() {
+			this.loadingCalls = true
 			const url = generateUrl('/apps/integration_pexip/calls')
 			return axios.get(url)
 				.then((response) => {
@@ -166,6 +186,7 @@ export default {
 					showError(t('integration_pexip', 'Error getting the Pexip calls'))
 				})
 				.then(() => {
+					this.loadingCalls = false
 				})
 		},
 		onSubmit(url) {
@@ -216,6 +237,30 @@ export default {
 		flex-grow: 1;
 	}
 
+	.call-list {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px;
+		.call {
+			border: 2px solid var(--color-border);
+			border-radius: var(--border-radius-large);
+			padding: 8px;
+			cursor: pointer;
+			:deep(*) {
+				cursor: pointer;
+			}
+			&:focus,
+			&:focus-visible,
+			&:hover {
+				//background-color: var(--color-background-hover);
+				border: 2px solid var(--color-primary);
+				outline: none;
+				box-shadow: none;
+			}
+		}
+	}
+
 	.creation-toggle {
 		width: 100%;
 		display: flex;
@@ -227,18 +272,25 @@ export default {
 		}
 	}
 
+	.creation-footer {
+		margin-top: 8px;
+	}
+
 	.creation-form {
 		width: 100%;
 		padding: 12px 0;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: start;
 
 		.line {
 			display: flex;
 			align-items: center;
-			margin-top: 8px;
-			width: 100%;
+			margin: 4px 0 0 14px;
+
+			label {
+				width: 150px;
+			}
 
 			input,
 			select {
