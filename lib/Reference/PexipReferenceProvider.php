@@ -102,10 +102,12 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 			}
 
 			$reference = new Reference($referenceText);
-			$richObjectInfo = $this->pexipService->getPexipCallInfo($pexipId);
+			$callInfo = $this->pexipService->getPexipCallInfo($pexipId);
 			$reference->setRichObject(
 				self::RICH_OBJECT_TYPE,
-				$richObjectInfo,
+				[
+					'call' => $callInfo,
+				]
 			);
 			return $reference;
 		}

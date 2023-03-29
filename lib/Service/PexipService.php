@@ -11,7 +11,10 @@
 
 namespace OCA\Pexip\Service;
 
+use DateTime;
 use Exception;
+use OCA\Pexip\AppInfo\Application;
+use OCA\Pexip\Db\Call;
 use OCA\Pexip\Db\CallMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
@@ -79,12 +82,25 @@ class PexipService {
 	 * @throws \OCP\DB\Exception
 	 */
 	public function getUserCalls(string $userId): array {
-		return $this->callMapper->getUserCalls($userId);
+		$pexipUrl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
+		return array_map(function (Call $call) use ($pexipUrl) {
+			$callArray = $call->jsonSerialize();
+			$callArray['link'] = $this->getCallLink($pexipUrl, $call->getPexipId());
+			return $callArray;
+		}, $this->callMapper->getUserCalls($userId));
+	}
+
+	/**
+	 * @param string $pexipurl
+	 * @param string $pexipId
+	 * @return string
+	 */
+	private function getCallLink(string $pexipUrl, string $pexipId): string {
+		return trim($pexipUrl, " \n\r\t\v\x00/") . '/webapp3/m/' . $pexipId;
 	}
 
 	/**
 	 * @param string $userId
-	 * @param string $pexipId
 	 * @param string $description
 	 * @param string $pin
 	 * @param string $guestPin
@@ -92,17 +108,40 @@ class PexipService {
 	 * @param bool $allowGuests
 	 * @return array
 	 */
-	public function createCall(string $userId, string $pexipId, string $description, string $pin, string $guestPin = '',
-							   bool   $guestsCanPresent = true, bool $allowGuests = true): array {
+	public function createCall(string $userId, string $description, string $pin = '', string $guestPin = '',
+							   bool $guestsCanPresent = true, bool $allowGuests = true): array {
+		$ts = (new DateTime())->getTimestamp();
+		$pexipId = md5($description . $userId . $ts);
 		try {
 			$call = $this->callMapper->createCall(
 				$userId, $pexipId, $description, $pin, $guestPin,
 				$guestsCanPresent, $allowGuests
 			);
-			return $call->jsonSerialize();
+			$callArray = $call->jsonSerialize();
+			$pexipUrl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
+			$callArray['link'] = $this->getCallLink($pexipUrl, $call->getPexipId());
+			return $callArray;
 		} catch (Exception | Throwable $e) {
 			return [
 				'error' => $e->getMessage(),
+			];
+		}
+	}
+
+	/**
+	 * @param string $pexipId
+	 * @return string[]
+	 * @throws MultipleObjectsReturnedException
+	 * @throws \OCP\DB\Exception
+	 */
+	public function getPexipCallInfo(string $pexipId): array {
+		try {
+			$call = $this->callMapper->getCallFromPexipId($pexipId);
+			$this->callMapper->touchCall($call->getId());
+			return $call->jsonSerialize();
+		} catch (DoesNotExistException $e) {
+			return [
+				'error' => 'not found',
 			];
 		}
 	}

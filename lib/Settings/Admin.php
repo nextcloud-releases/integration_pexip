@@ -22,10 +22,10 @@ class Admin implements ISettings {
 	 * @return TemplateResponse
 	 */
 	public function getForm(): TemplateResponse {
-		$pexipurl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
+		$pexipUrl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
 
 		$adminConfig = [
-			'pexip_url' => $pexipurl,
+			'pexip_url' => $pexipUrl,
 		];
 		$this->initialStateService->provideInitialState('admin-config', $adminConfig);
 

@@ -6,7 +6,8 @@
 		<div class="call-list">
 			<PexipCall v-for="call in calls"
 				:key="call.pexip_id"
-				:call="call" />
+				:call="call"
+				@click.native="$emit('submit', call.link)" />
 		</div>
 		<div class="creation-toggle">
 			<NcButton class="toggle-button"
@@ -15,19 +16,67 @@
 				<template #icon>
 					<component :is="showCreationIcon" />
 				</template>
-				{{ t('integration_pexip', 'Create a meeting') }}
+				{{ t('integration_pexip', 'Meeting creation') }}
 			</NcButton>
 		</div>
 		<div v-show="showCreation" class="creation-form">
 			<div class="line">
-				<label for="number">
+				<label for="desc">
 					{{ t('integration_pexip', 'Description') }}
 				</label>
 				<div class="spacer" />
-				<input
+				<NcRichContenteditable
 					id="desc"
-					v-model="description"
-					type="text">
+					:value.sync="description"
+					:maxlength="3000"
+					:placeholder="t('integration_pexip', 'Short description, max 3000 characters')"
+					:link-autocomplete="false" />
+			</div>
+			<div class="line">
+				<label for="pin">
+					{{ t('integration_pexip', 'Pin') }}
+				</label>
+				<div class="spacer" />
+				<input
+					id="pin"
+					v-model="pin"
+					type="text"
+					:placeholder="t('integration_pexip', '1234abcd...')"
+					maxlength="64">
+			</div>
+			<NcCheckboxRadioSwitch
+				:checked.sync="allow_guests">
+				{{ t('integration_pexip', 'Allow guests') }}
+			</NcCheckboxRadioSwitch>
+			<NcCheckboxRadioSwitch
+				:checked.sync="guests_can_present"
+				:disabled="!allow_guests">
+				{{ t('integration_pexip', 'Guests can present') }}
+			</NcCheckboxRadioSwitch>
+			<div class="line">
+				<label for="guest-pin">
+					{{ t('integration_pexip', 'Guest pin') }}
+				</label>
+				<div class="spacer" />
+				<input
+					id="guest-pin"
+					v-model="guest_pin"
+					:disabled="!allow_guests"
+					type="text"
+					:placeholder="t('integration_pexip', '1234abcd...')"
+					maxlength="64">
+			</div>
+			<div class="creation-footer">
+				<NcButton class="create-button"
+					type="primary"
+					:disabled="!canCreate"
+					@click="onCreate">
+					<template #icon>
+						<NcLoadingIcon v-if="creating" />
+						<ArrowRightIcon v-else />
+					</template>
+					{{ t('integration_pexip', 'Create') }}
+				</NcButton>
 			</div>
 		</div>
 	</div>
@@ -40,6 +89,8 @@ import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue'
 
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
+import NcRichContenteditable from '@nextcloud/vue/dist/Components/NcRichContenteditable.js'
 
 import PexipCall from '../components/PexipCall.vue'
 
@@ -54,6 +105,8 @@ export default {
 		PexipCall,
 		NcButton,
 		NcLoadingIcon,
+		NcRichContenteditable,
+		NcCheckboxRadioSwitch,
 		ChevronRightIcon,
 		ChevronDownIcon,
 		ArrowRightIcon,
@@ -72,10 +125,14 @@ export default {
 
 	data() {
 		return {
-			loading: false,
+			creating: false,
 			calls: [],
 			showCreation: false,
 			description: '',
+			pin: '',
+			allow_guests: true,
+			guest_pin: '',
+			guests_can_present: false,
 		}
 	},
 
@@ -84,6 +141,9 @@ export default {
 			return this.showCreation
 				? ChevronDownIcon
 				: ChevronRightIcon
+		},
+		canCreate() {
+			return !!this.description
 		},
 	},
 
@@ -97,7 +157,7 @@ export default {
 	methods: {
 		getCalls() {
 			const url = generateUrl('/apps/integration_pexip/calls')
-			return axios.post(url)
+			return axios.get(url)
 				.then((response) => {
 					this.calls = response.data
 				})
@@ -112,9 +172,13 @@ export default {
 			this.$emit('submit', url)
 		},
 		onCreate() {
-			this.loading = true
+			this.creating = true
 			const params = {
 				description: this.description,
+				pin: this.pin,
+				allowGuests: this.allow_guests,
+				guestPin: this.guest_pin,
+				guestsCanPresent: this.guests_can_present,
 			}
 			const url = generateUrl('/apps/integration_pexip/calls')
 			return axios.post(url, params)
@@ -127,7 +191,7 @@ export default {
 					showError(t('integration_pexip', 'Error creating the Pexip call'))
 				})
 				.then(() => {
-					this.loading = false
+					this.creating = false
 				})
 		},
 	},
@@ -166,10 +230,15 @@ export default {
 	.creation-form {
 		width: 100%;
 		padding: 12px 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
 		.line {
 			display: flex;
 			align-items: center;
 			margin-top: 8px;
+			width: 100%;
 
 			input,
 			select {
@@ -182,6 +251,10 @@ export default {
 			appearance: initial !important;
 			-moz-appearance: initial !important;
 			-webkit-appearance: initial !important;
+		}
+
+		#desc {
+			width: 300px;
 		}
 	}
 }

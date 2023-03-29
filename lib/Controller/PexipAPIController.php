@@ -11,12 +11,14 @@
 
 namespace OCA\Pexip\Controller;
 
+use OCA\Pexip\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\DB\Exception;
+use OCP\IConfig;
 use OCP\IRequest;
 
 use OCA\Pexip\Service\PexipService;
@@ -26,16 +28,19 @@ class PexipAPIController extends Controller {
 	private PexipService $pexipService;
 	private IInitialState $initialStateService;
 	private ?string $userId;
+	private IConfig $config;
 
-	public function __construct(string           $appName,
-								IRequest         $request,
+	public function __construct(string $appName,
+								IRequest $request,
+								IConfig $config,
 								PexipService $pexipService,
-								IInitialState    $initialStateService,
-								?string          $userId) {
+								IInitialState $initialStateService,
+								?string $userId) {
 		parent::__construct($appName, $request);
 		$this->pexipService = $pexipService;
 		$this->initialStateService = $initialStateService;
 		$this->userId = $userId;
+		$this->config = $config;
 	}
 
 	/**
@@ -68,7 +73,6 @@ class PexipAPIController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 *
-	 * @param string $pexipId
 	 * @param string $description
 	 * @param string $pin
 	 * @param string $guestPin
@@ -76,9 +80,9 @@ class PexipAPIController extends Controller {
 	 * @param bool $allowGuests
 	 * @return DataResponse
 	 */
-	public function createCall(string $pexipId, string $description, string $pin, string $guestPin = '',
+	public function createCall(string $description, string $pin = '', string $guestPin = '',
 							   bool $guestsCanPresent = true, bool $allowGuests = true): DataResponse {
-		$response = $this->pexipService->createCall($this->userId, $pexipId, $description, $guestPin, $guestsCanPresent, $allowGuests);
+		$response = $this->pexipService->createCall($this->userId, $description, $pin, $guestPin, $guestsCanPresent, $allowGuests);
 		if (isset($response['error'])) {
 			return new DataResponse($response, Http::STATUS_BAD_REQUEST);
 		}
