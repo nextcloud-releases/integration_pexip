@@ -44,16 +44,16 @@ class PexipAPIController extends Controller {
 	}
 
 	/**
-	 * @NoAdminRequired
+	 * @PublicPage
 	 * @NoCSRFRequired
 	 *
-	 * @param string $pexipId
+	 * @param string $local_alias
 	 * @return DataResponse
-	 * @throws MultipleObjectsReturnedException
 	 * @throws Exception
+	 * @throws MultipleObjectsReturnedException
 	 */
-	public function checkCall(string $pexipId): DataResponse {
-		$response = $this->pexipService->checkCall($pexipId);
+	public function checkCall(string $local_alias): DataResponse {
+		$response = $this->pexipService->checkCall($local_alias);
 		if (isset($response['status']) && $response['status'] === 'fail') {
 			return new DataResponse($response, Http::STATUS_NOT_FOUND);
 		}

@@ -13,7 +13,7 @@ return [
 	'routes' => [
 		['name' => 'config#setConfig', 'url' => '/config', 'verb' => 'PUT'],
 		['name' => 'config#setAdminConfig', 'url' => '/admin-config', 'verb' => 'PUT'],
-		['name' => 'pexipAPI#checkCall', 'url' => '/call', 'verb' => 'GET'],
+		['name' => 'pexipAPI#checkCall', 'url' => '/v1/service/configuration', 'verb' => 'GET'],
 		['name' => 'pexipAPI#createCall', 'url' => '/calls', 'verb' => 'POST'],
 		['name' => 'pexipAPI#getUserCalls', 'url' => '/calls', 'verb' => 'GET'],
 	],
