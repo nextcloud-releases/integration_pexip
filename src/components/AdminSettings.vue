@@ -18,7 +18,7 @@
 			</div>
 			<p class="settings-hint">
 				<InformationOutlineIcon :size="20" class="icon" />
-				{{ t('integration_pexip', 'On the Pexip side, do this and that...') }}
+				{{ configHint }}
 			</p>
 		</div>
 	</div>
@@ -50,10 +50,15 @@ export default {
 	data() {
 		return {
 			state: loadState('integration_pexip', 'admin-config'),
+			policyUri: window.location.protocol + '//' + window.location.host + generateUrl('/apps/integration_pexip'),
 		}
 	},
 
 	computed: {
+		configHint() {
+
+			return t('integration_pexip', 'On the Pexip side, the "policy server URI" must be set to {policyUri}', { policyUri: this.policyUri })
+		},
 	},
 
 	watch: {
