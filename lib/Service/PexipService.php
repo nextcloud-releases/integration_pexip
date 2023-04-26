@@ -50,23 +50,33 @@ class PexipService {
 		try {
 			$call = $this->callMapper->getCallFromPexipId($pexipId);
 			$this->callMapper->touchCall($call->getId());
-			return [
+			$params = [
 				'status' => 'success',
 				'action' => 'continue',
 				'result' => [
 					'service_type' => 'conference',
 					'name' => $call->getPexipId(),
 					'service_tag' => 'Nextcloud',
-					'description' => $call->getDescription(),
-					'call_tag' => '',
-					'pin' => $call->getPin(),
-					'guest_pin' => $call->getGuestPin(),
-					'guests_can_present' => (bool) $call->getGuestsCanPresent(),
-					'allow_guests' => (bool) $call->getAllowGuests(),
+					'allow_guests' => $call->getAllowGuests(),
 					'view' => 'five_mains_seven_pips', // We choose the layout
-					'locked' => false
+					//'locked' => false
 				],
 			];
+			if ($call->getDescription()) {
+				$params['result']['description'] = $call->getDescription();
+			}
+			if ($call->getPin()) {
+				$params['result']['pin'] = $call->getPin();
+			}
+			if ($call->getAllowGuests()) {
+				if ($call->getGuestPin()) {
+					$params['result']['guest_pin'] = $call->getGuestPin();
+				}
+				if ($call->getGuestsCanPresent()) {
+					$params['result']['guests_can_present'] = $call->getGuestsCanPresent();
+				}
+			}
+			return $params;
 		} catch (DoesNotExistException $e) {
 			return [
 				'status' => 'fail',
