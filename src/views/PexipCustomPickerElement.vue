@@ -53,6 +53,10 @@
 					type="text"
 					:placeholder="t('integration_pexip', '1234abcd...')"
 					maxlength="64">
+				<InformationOutlineIcon v-if="allow_guests && pin === ''" />
+				<span v-if="allow_guests && pin === ''">
+					{{ t('integration_pexip', 'Pin is mandatory if you allow guests') }}
+				</span>
 			</div>
 			<div class="line">
 				<NcCheckboxRadioSwitch
@@ -99,6 +103,7 @@
 import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
 import ChevronRightIcon from 'vue-material-design-icons/ChevronRight.vue'
 import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue'
+import InformationOutlineIcon from 'vue-material-design-icons/InformationOutline.vue'
 
 import PexipIcon from '../components/icons/PexipIcon.vue'
 
@@ -128,6 +133,7 @@ export default {
 		ChevronRightIcon,
 		ChevronDownIcon,
 		ArrowRightIcon,
+		InformationOutlineIcon,
 	},
 
 	props: {
@@ -149,7 +155,7 @@ export default {
 			showCreation: false,
 			description: '',
 			pin: '',
-			allow_guests: true,
+			allow_guests: false,
 			guest_pin: '',
 			guests_can_present: false,
 		}
@@ -162,7 +168,7 @@ export default {
 				: ChevronRightIcon
 		},
 		canCreate() {
-			return !!this.description
+			return !!this.description && (!this.allow_guests || !!this.pin)
 		},
 	},
 
