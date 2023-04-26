@@ -32,6 +32,7 @@
 			</span>
 			<a v-else
 				:href="call.link"
+				target="_blank"
 				class="description">
 				{{ call.description }}
 			</a>
