@@ -50,7 +50,7 @@ class PexipService {
 		try {
 			$call = $this->callMapper->getCallFromPexipId($pexipId);
 			$this->callMapper->touchCall($call->getId());
-			$allowGuests = (bool) $call->getAllowGuests()
+			$allowGuests = (bool) $call->getAllowGuests();
 			$params = [
 				'status' => 'success',
 				'action' => 'continue',
