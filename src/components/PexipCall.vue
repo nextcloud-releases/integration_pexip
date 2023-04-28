@@ -22,16 +22,15 @@
 <template>
 	<div class="pexip-call">
 		<div v-if="deleted" class="call-info">
-			{{ t('integration_pexip', 'This Pexip call has been deleted') }}
+			{{ t('integration_pexip', 'This Pexip meeting has been deleted') }}
 		</div>
 		<div v-else-if="call.error" class="call-info">
-			{{ t('integration_pexip', 'This Pexip call does not exist') }}
+			{{ t('integration_pexip', 'This Pexip meeting does not exist') }}
 		</div>
 		<div v-else class="call-info">
 			<div class="header">
 				<label v-if="!noDescriptionLabel">
-					<PexipIcon :size="20" class="icon" />
-					{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;
+					<PexipIcon :size="20" class="icon" /><span>{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;</span>
 				</label>
 				<span v-if="noLink"
 					class="description">
@@ -46,15 +45,20 @@
 			</div>
 			<div class="content">
 				<div class="guest-allowed">
-					<AccountIcon v-if="call.allow_guests" :size="20" />
-					<AccountOffIcon v-else :size="20" />
+					<AccountIcon v-if="call.allow_guests" class="icon" :size="20" />
+					<AccountOffIcon v-else class="icon" :size="20" />
 					{{ guestAllowedText }}
+				</div>
+				<div v-if="call.allow_guests" class="guest-presentation">
+					<CardOutlineIcon v-if="call.guests_can_present" class="icon" :size="20" />
+					<CardOffOutlineIcon v-else class="icon" :size="20" />
+					{{ guestCanPresentText }}
 				</div>
 			</div>
 		</div>
 		<div class="spacer" />
 		<NcButton v-if="canDelete && !deleted"
-			:title="t('integration_pexip', 'Delete call')"
+			:title="t('integration_pexip', 'Delete meeting')"
 			class="delete-button"
 			@click.prevent.stop="onDelete">
 			<template #icon>
@@ -66,6 +70,8 @@
 </template>
 
 <script>
+import CardOutlineIcon from 'vue-material-design-icons/CardOutline.vue'
+import CardOffOutlineIcon from 'vue-material-design-icons/CardOffOutline.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
 import AccountIcon from 'vue-material-design-icons/Account.vue'
 import AccountOffIcon from 'vue-material-design-icons/AccountOff.vue'
@@ -90,6 +96,8 @@ export default {
 		DeleteIcon,
 		NcButton,
 		NcLoadingIcon,
+		CardOffOutlineIcon,
+		CardOutlineIcon,
 	},
 
 	props: {
@@ -120,6 +128,11 @@ export default {
 			return this.call.allow_guests
 				? t('integration_pexip', 'Guests allowed')
 				: t('integration_pexip', 'No guest access')
+		},
+		guestCanPresentText() {
+			return this.call.guests_can_present
+				? t('integration_pexip', 'Guests can present')
+				: t('integration_pexip', 'Guests cannot present')
 		},
 	},
 
@@ -163,6 +176,7 @@ export default {
 			display: inline;
 			position: relative;
 			top: 4px;
+			margin-right: 8px;
 		}
 	}
 	a.hover {
@@ -172,9 +186,13 @@ export default {
 		font-weight: bold;
 	}
 	.content {
+		.guest-presentation,
 		.guest-allowed {
 			display: flex;
 			align-items: center;
+			.icon {
+				margin-right: 8px;
+			}
 		}
 	}
 

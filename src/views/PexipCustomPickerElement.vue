@@ -29,7 +29,7 @@
 				<template #icon>
 					<component :is="showCreationIcon" />
 				</template>
-				{{ t('integration_pexip', 'Meeting creation') }}
+				{{ t('integration_pexip', 'Create a meeting') }}
 			</NcButton>
 		</div>
 		<div v-show="showCreation" class="creation-form">
@@ -46,7 +46,7 @@
 			</div>
 			<div class="line">
 				<label for="pin">
-					{{ t('integration_pexip', 'Pin') }}
+					{{ t('integration_pexip', 'Host pin') }}
 				</label>
 				<input
 					id="pin"
@@ -56,7 +56,7 @@
 					maxlength="64">
 				<InformationOutlineIcon v-if="allow_guests && pin === ''" />
 				<span v-if="allow_guests && pin === ''">
-					{{ t('integration_pexip', 'Pin is mandatory if you allow guests') }}
+					{{ t('integration_pexip', 'Host pin is mandatory if you allow guests') }}
 				</span>
 			</div>
 			<div class="line">
@@ -66,7 +66,8 @@
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="line">
-				<label for="guest-pin">
+				<label for="guest-pin"
+					:class="{ disabled: !allow_guests }">
 					{{ t('integration_pexip', 'Guest pin') }}
 				</label>
 				<input
@@ -309,6 +310,10 @@ export default {
 			select {
 				width: 200px;
 			}
+		}
+
+		label.disabled {
+			color: var(--color-text-maxcontrast);
 		}
 
 		input[type=number] {
