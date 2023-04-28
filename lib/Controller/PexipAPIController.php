@@ -64,10 +64,24 @@ class PexipAPIController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @return DataResponse
+	 * @throws Exception
 	 */
 	public function getUserCalls(): DataResponse {
 		$response = $this->pexipService->getUserCalls($this->userId);
 		return new DataResponse($response);
+	}
+
+	/**
+	 * @param string $pexipId
+	 * @return DataResponse
+	 */
+	public function deleteCall(string $pexipId): DataResponse {
+		try {
+			$this->pexipService->deleteCall($this->userId, $pexipId);
+			return new DataResponse('');
+		} catch (Exception $e) {
+			return new DataResponse($e->getMessage(), Http::STATUS_BAD_REQUEST);
+		}
 	}
 
 	/**

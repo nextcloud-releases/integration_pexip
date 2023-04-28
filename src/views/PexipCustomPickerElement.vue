@@ -12,6 +12,7 @@
 				:no-description-label="true"
 				class="call"
 				tabindex="0"
+				@deleted="onCallDeleted(call.id)"
 				@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
 				@click.native="$emit('submit', call.link)" />
 		</div>
@@ -220,6 +221,12 @@ export default {
 				.then(() => {
 					this.creating = false
 				})
+		},
+		onCallDeleted(id) {
+			const i = this.calls.findIndex(call => call.id === id)
+			if (i !== -1) {
+				this.calls.splice(i, 1)
+			}
 		},
 	},
 }

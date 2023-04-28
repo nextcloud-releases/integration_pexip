@@ -67,5 +67,6 @@ export default {
 <style scoped lang="scss">
 .call-widget {
 	padding: 12px;
+	width: 100%;
 }
 </style>

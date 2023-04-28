@@ -21,37 +21,64 @@
 
 <template>
 	<div class="pexip-call">
-		<div class="header">
-			<label v-if="!noDescriptionLabel">
-				<PexipIcon :size="20" class="icon" />
-				{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;
-			</label>
-			<span v-if="noLink"
-				class="description">
-				{{ call.description }}
-			</span>
-			<a v-else
-				:href="call.link"
-				target="_blank"
-				class="description">
-				{{ call.description }}
-			</a>
+		<div v-if="deleted" class="call-info">
+			{{ t('integration_pexip', 'This Pexip call has been deleted') }}
 		</div>
-		<div class="content">
-			<div class="guest-allowed">
-				<AccountIcon v-if="call.allow_guests" :size="20" />
-				<AccountOffIcon v-else :size="20" />
-				{{ guestAllowedText }}
+		<div v-else-if="call.error" class="call-info">
+			{{ t('integration_pexip', 'This Pexip call does not exist') }}
+		</div>
+		<div v-else class="call-info">
+			<div class="header">
+				<label v-if="!noDescriptionLabel">
+					<PexipIcon :size="20" class="icon" />
+					{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;
+				</label>
+				<span v-if="noLink"
+					class="description">
+					{{ call.description }}
+				</span>
+				<a v-else
+					:href="call.link"
+					target="_blank"
+					class="description">
+					{{ call.description }}
+				</a>
+			</div>
+			<div class="content">
+				<div class="guest-allowed">
+					<AccountIcon v-if="call.allow_guests" :size="20" />
+					<AccountOffIcon v-else :size="20" />
+					{{ guestAllowedText }}
+				</div>
 			</div>
 		</div>
+		<div class="spacer" />
+		<NcButton v-if="canDelete && !deleted"
+			:title="t('integration_pexip', 'Delete call')"
+			class="delete-button"
+			@click.prevent.stop="onDelete">
+			<template #icon>
+				<NcLoadingIcon v-if="deleting" />
+				<DeleteIcon v-else />
+			</template>
+		</NcButton>
 	</div>
 </template>
 
 <script>
+import DeleteIcon from 'vue-material-design-icons/Delete.vue'
 import AccountIcon from 'vue-material-design-icons/Account.vue'
 import AccountOffIcon from 'vue-material-design-icons/AccountOff.vue'
 
 import PexipIcon from './icons/PexipIcon.vue'
+
+import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
+import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+
+import { showError } from '@nextcloud/dialogs'
+import { getCurrentUser } from '@nextcloud/auth'
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
 
 export default {
 	name: 'PexipCall',
@@ -60,6 +87,9 @@ export default {
 		PexipIcon,
 		AccountIcon,
 		AccountOffIcon,
+		DeleteIcon,
+		NcButton,
+		NcLoadingIcon,
 	},
 
 	props: {
@@ -79,6 +109,9 @@ export default {
 
 	data() {
 		return {
+			canDelete: getCurrentUser().uid === this.call.user_id,
+			deleting: false,
+			deleted: false,
 		}
 	},
 
@@ -94,6 +127,22 @@ export default {
 	},
 
 	methods: {
+		onDelete() {
+			this.deleting = true
+			const url = generateUrl('/apps/integration_pexip/calls/{id}', { id: this.call.pexip_id })
+			return axios.delete(url)
+				.then((response) => {
+					this.deleted = true
+					this.$emit('deleted')
+				})
+				.catch((error) => {
+					console.error('Pexip delete call error', error)
+					showError(t('integration_pexip', 'Error deleting the Pexip call'))
+				})
+				.then(() => {
+					this.deleting = false
+				})
+		},
 	},
 }
 </script>
@@ -101,6 +150,9 @@ export default {
 <style scoped lang="scss">
 .pexip-call {
 	white-space: normal;
+	display: flex;
+	align-items: center;
+
 	.header {
 		//display: flex;
 		//align-items: center;
@@ -124,6 +176,14 @@ export default {
 			display: flex;
 			align-items: center;
 		}
+	}
+
+	.delete-button {
+		margin-left: 8px;
+	}
+
+	.spacer {
+		flex-grow: 1;
 	}
 }
 </style>

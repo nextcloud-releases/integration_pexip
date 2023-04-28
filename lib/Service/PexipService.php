@@ -138,6 +138,16 @@ class PexipService {
 	}
 
 	/**
+	 * @param string $userId
+	 * @param string $pexipId
+	 * @return void
+	 * @throws \OCP\DB\Exception
+	 */
+	public function deleteCall(string $userId, string $pexipId): void {
+		$this->callMapper->deleteUserCallFromPexipId($userId, $pexipId);
+	}
+
+	/**
 	 * @param string $pexipId
 	 * @return string[]
 	 * @throws MultipleObjectsReturnedException

@@ -81,6 +81,29 @@ class CallMapper extends QBMapper {
 
 	/**
 	 * @param string $userId
+	 * @param string $pexipId
+	 * @return Call
+	 * @throws DoesNotExistException
+	 * @throws Exception
+	 * @throws MultipleObjectsReturnedException
+	 */
+	public function getUserCallFromPexipId(string $userId, string $pexipId): Call {
+		$qb = $this->db->getQueryBuilder();
+
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('pexip_id', $qb->createNamedParameter($pexipId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			);
+
+		return $this->findEntity($qb);
+	}
+
+	/**
+	 * @param string $userId
 	 * @return array
 	 * @throws Exception
 	 */
@@ -149,6 +172,21 @@ class CallMapper extends QBMapper {
 	public function deleteCall(int $id): ?Call {
 		try {
 			$call = $this->getCall($id);
+		} catch (DoesNotExistException | MultipleObjectsReturnedException $e) {
+			return null;
+		}
+		return $this->delete($call);
+	}
+
+	/**
+	 * @param string $userId
+	 * @param string $pexipId
+	 * @return Call|null
+	 * @throws Exception
+	 */
+	public function deleteUserCallFromPexipId(string $userId, string $pexipId): ?Call {
+		try {
+			$call = $this->getUserCallFromPexipId($userId, $pexipId);
 		} catch (DoesNotExistException | MultipleObjectsReturnedException $e) {
 			return null;
 		}
