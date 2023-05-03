@@ -65,8 +65,10 @@ class PexipAPIController extends Controller {
 	 */
 	public function deleteCall(string $pexipId): DataResponse {
 		try {
-			$this->pexipService->deleteCall($this->userId, $pexipId);
-			return new DataResponse('');
+			if ($this->pexipService->deleteCall($this->userId, $pexipId)) {
+				return new DataResponse('');
+			}
+			return new DataResponse('', Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return new DataResponse($e->getMessage(), Http::STATUS_BAD_REQUEST);
 		}

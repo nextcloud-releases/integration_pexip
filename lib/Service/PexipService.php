@@ -132,14 +132,15 @@ class PexipService {
 	/**
 	 * @param string $userId
 	 * @param string $pexipId
-	 * @return void
+	 * @return bool
 	 * @throws \OCP\DB\Exception
 	 */
-	public function deleteCall(string $userId, string $pexipId): void {
+	public function deleteCall(string $userId, string $pexipId): bool {
 		$deletedCall = $this->callMapper->deleteUserCallFromPexipId($userId, $pexipId);
 		if ($deletedCall !== null) {
 			$this->referenceManager->invalidateCache('pexip', $pexipId);
 		}
+		return $deletedCall !== null;
 	}
 
 	/**
