@@ -22,6 +22,7 @@
 
 namespace OCA\Pexip\Reference;
 
+use OC\Collaboration\Reference\ReferenceManager;
 use OCP\Collaboration\Reference\ADiscoverableReferenceProvider;
 use OCP\Collaboration\Reference\Reference;
 use OCA\Pexip\AppInfo\Application;
@@ -36,22 +37,11 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 
 	private const RICH_OBJECT_TYPE = Application::APP_ID . '_call';
 
-	private PexipService $pexipService;
-	private ?string $userId;
-	private IL10N $l10n;
-	private IURLGenerator $urlGenerator;
-	private IConfig $config;
-
-	public function __construct(PexipService $pexipService,
-								IL10N $l10n,
-								IConfig $config,
-								IURLGenerator $urlGenerator,
-								?string $userId) {
-		$this->pexipService = $pexipService;
-		$this->userId = $userId;
-		$this->l10n = $l10n;
-		$this->urlGenerator = $urlGenerator;
-		$this->config = $config;
+	public function __construct(private PexipService $pexipService,
+								private IL10N $l10n,
+								private IConfig $config,
+								private IURLGenerator $urlGenerator,
+								private ReferenceManager $referenceManager) {
 	}
 
 	/**
@@ -103,6 +93,13 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 
 			$reference = new Reference($referenceText);
 			$callInfo = $this->pexipService->getPexipCallInfo($pexipId);
+			// obfuscate pins
+			if ($callInfo['pin']) {
+				$callInfo['pin'] = 'xxx';
+			}
+			if ($callInfo['guest_pin']) {
+				$callInfo['guest_pin'] = 'xxx';
+			}
 			$reference->setRichObject(
 				self::RICH_OBJECT_TYPE,
 				[
@@ -136,13 +133,13 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 	 * @inheritDoc
 	 */
 	public function getCachePrefix(string $referenceId): string {
-		return '';
+		return 'pexip';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getCacheKey(string $referenceId): ?string {
-		return $referenceId;
+		return $this->getPexipId($referenceId);
 	}
 }

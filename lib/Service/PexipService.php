@@ -13,31 +13,22 @@ namespace OCA\Pexip\Service;
 
 use DateTime;
 use Exception;
+use OC\Collaboration\Reference\ReferenceManager;
 use OCA\Pexip\AppInfo\Application;
 use OCA\Pexip\Db\Call;
 use OCA\Pexip\Db\CallMapper;
+use OCA\Pexip\Reference\PexipReferenceProvider;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IConfig;
-use OCP\IL10N;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 class PexipService {
-	private LoggerInterface $logger;
-	private IL10N $l10n;
-	private IConfig $config;
-	private CallMapper $callMapper;
 
 	public function __construct (string $appName,
-								LoggerInterface $logger,
-								IL10N $l10n,
-								IConfig $config,
-								CallMapper $callMapper) {
-		$this->logger = $logger;
-		$this->l10n = $l10n;
-		$this->config = $config;
-		$this->callMapper = $callMapper;
+								private IConfig $config,
+								private ReferenceManager $referenceManager,
+								private CallMapper $callMapper) {
 	}
 
 	/**
@@ -144,7 +135,10 @@ class PexipService {
 	 * @throws \OCP\DB\Exception
 	 */
 	public function deleteCall(string $userId, string $pexipId): void {
-		$this->callMapper->deleteUserCallFromPexipId($userId, $pexipId);
+		$deletedCall = $this->callMapper->deleteUserCallFromPexipId($userId, $pexipId);
+		if ($deletedCall !== null) {
+			$this->referenceManager->invalidateCache('pexip', $pexipId);
+		}
 	}
 
 	/**
