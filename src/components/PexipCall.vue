@@ -44,10 +44,27 @@
 				</a>
 			</div>
 			<div class="content">
+				<div class="creator">
+					{{ t('integration_pexip', 'Creator') }}:&nbsp;
+					<NcUserBubble
+						:primary="true"
+						:user="call.user_id"
+						:display-name="creatorDisplayName" />
+				</div>
+				<div class="host-pin">
+					<LockOutlineIcon v-if="call.pin" class="icon" :size="20" />
+					<LockOpenVariantOutlineIcon v-else class="icon" :size="20" />
+					{{ hostPinText }}
+				</div>
 				<div class="guest-allowed">
 					<AccountIcon v-if="call.allow_guests" class="icon" :size="20" />
 					<AccountOffIcon v-else class="icon" :size="20" />
 					{{ guestAllowedText }}
+				</div>
+				<div v-if="call.allow_guests" class="guest-pin">
+					<LockOutlineIcon v-if="call.guest_pin" class="icon" :size="20" />
+					<LockOpenVariantOutlineIcon v-else class="icon" :size="20" />
+					{{ guestPinText }}
 				</div>
 				<div v-if="call.allow_guests" class="guest-presentation">
 					<CardOutlineIcon v-if="call.guests_can_present" class="icon" :size="20" />
@@ -70,6 +87,8 @@
 </template>
 
 <script>
+import LockOutlineIcon from 'vue-material-design-icons/LockOutline.vue'
+import LockOpenVariantOutlineIcon from 'vue-material-design-icons/LockOpenVariantOutline.vue'
 import CardOutlineIcon from 'vue-material-design-icons/CardOutline.vue'
 import CardOffOutlineIcon from 'vue-material-design-icons/CardOffOutline.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
@@ -80,6 +99,7 @@ import PexipIcon from './icons/PexipIcon.vue'
 
 import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
+import NcUserBubble from '@nextcloud/vue/dist/Components/NcUserBubble.js'
 
 import { showError } from '@nextcloud/dialogs'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -98,6 +118,9 @@ export default {
 		NcLoadingIcon,
 		CardOffOutlineIcon,
 		CardOutlineIcon,
+		NcUserBubble,
+		LockOutlineIcon,
+		LockOpenVariantOutlineIcon,
 	},
 
 	props: {
@@ -133,6 +156,21 @@ export default {
 			return this.call.guests_can_present
 				? t('integration_pexip', 'Guests can present')
 				: t('integration_pexip', 'Guests cannot present')
+		},
+		hostPinText() {
+			return this.call.pin
+				? t('integration_pexip', 'Host pin')
+				: t('integration_pexip', 'No host pin')
+		},
+		guestPinText() {
+			return this.call.guest_pin
+				? t('integration_pexip', 'Guests pin')
+				: t('integration_pexip', 'No guests pin')
+		},
+		creatorDisplayName() {
+			return getCurrentUser().uid === this.call.user_id
+				? t('integration_pexip', 'You')
+				: this.call.user_name
 		},
 	},
 
@@ -186,6 +224,8 @@ export default {
 		font-weight: bold;
 	}
 	.content {
+		.host-pin,
+		.guest-pin,
 		.guest-presentation,
 		.guest-allowed {
 			display: flex;

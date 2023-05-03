@@ -17,7 +17,7 @@
 				@click.native="$emit('submit', call.link)" />
 		</div>
 		<NcEmptyContent v-else
-			:title="t('integration_pexip', 'No meetings found')">
+			:description="t('integration_pexip', 'No meetings found')">
 			<template #icon>
 				<PexipIcon />
 			</template>

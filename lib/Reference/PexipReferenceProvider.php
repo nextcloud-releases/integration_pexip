@@ -22,15 +22,18 @@
 
 namespace OCA\Pexip\Reference;
 
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\Collaboration\Reference\ADiscoverableReferenceProvider;
 use OCP\Collaboration\Reference\Reference;
 use OCA\Pexip\AppInfo\Application;
 use OCA\Pexip\Service\PexipService;
 use OCP\Collaboration\Reference\IReference;
+use OCP\DB\Exception;
 use OCP\IConfig;
 use OCP\IL10N;
 
 use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 
@@ -40,7 +43,8 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 		private PexipService $pexipService,
 		private IL10N $l10n,
 		private IConfig $config,
-		private IURLGenerator $urlGenerator
+		private IURLGenerator $urlGenerator,
+		private IUserManager $userManager
 	) {
 	}
 
@@ -91,8 +95,11 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 				return null;
 			}
 
-			$reference = new Reference($referenceText);
-			$callInfo = $this->pexipService->getPexipCallInfo($pexipId);
+			try {
+				$callInfo = $this->pexipService->getPexipCallInfo($pexipId);
+			} catch (MultipleObjectsReturnedException | Exception $e) {
+				return null;
+			}
 			// obfuscate pins
 			if ($callInfo['pin']) {
 				$callInfo['pin'] = 'xxx';
@@ -100,6 +107,11 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 			if ($callInfo['guest_pin']) {
 				$callInfo['guest_pin'] = 'xxx';
 			}
+			$user = $this->userManager->get($callInfo['user_id']);
+			if ($user !== null) {
+				$callInfo['user_name'] = $user->getDisplayName();
+			}
+			$reference = new Reference($referenceText);
 			$reference->setRichObject(
 				self::RICH_OBJECT_TYPE,
 				[
