@@ -11,36 +11,24 @@
 
 namespace OCA\Pexip\Controller;
 
-use OCA\Pexip\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\DB\Exception;
-use OCP\IConfig;
 use OCP\IRequest;
 
 use OCA\Pexip\Service\PexipService;
 
 class PexipAPIController extends Controller {
 
-	private PexipService $pexipService;
-	private IInitialState $initialStateService;
-	private ?string $userId;
-	private IConfig $config;
-
-	public function __construct(string $appName,
-								IRequest $request,
-								IConfig $config,
-								PexipService $pexipService,
-								IInitialState $initialStateService,
-								?string $userId) {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private PexipService $pexipService,
+		private ?string $userId
+	) {
 		parent::__construct($appName, $request);
-		$this->pexipService = $pexipService;
-		$this->initialStateService = $initialStateService;
-		$this->userId = $userId;
-		$this->config = $config;
 	}
 
 	/**

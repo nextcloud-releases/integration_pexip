@@ -17,7 +17,6 @@ use OC\Collaboration\Reference\ReferenceManager;
 use OCA\Pexip\AppInfo\Application;
 use OCA\Pexip\Db\Call;
 use OCA\Pexip\Db\CallMapper;
-use OCA\Pexip\Reference\PexipReferenceProvider;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IConfig;
@@ -25,10 +24,12 @@ use Throwable;
 
 class PexipService {
 
-	public function __construct (string $appName,
-								private IConfig $config,
-								private ReferenceManager $referenceManager,
-								private CallMapper $callMapper) {
+	public function __construct(
+		string $appName,
+		private IConfig $config,
+		private ReferenceManager $referenceManager,
+		private CallMapper $callMapper
+	) {
 	}
 
 	/**

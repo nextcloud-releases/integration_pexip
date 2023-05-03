@@ -11,26 +11,22 @@
 
 namespace OCA\Pexip\Controller;
 
+use OCA\Pexip\AppInfo\Application;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\DataResponse;
 use OCP\IConfig;
 use OCP\IRequest;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Controller;
-
-use OCA\Pexip\AppInfo\Application;
 use OCP\PreConditionNotMetException;
 
 class ConfigController extends Controller {
 
-	private IConfig $config;
-	private ?string $userId;
-
-	public function __construct(string   $appName,
-								IRequest $request,
-								IConfig  $config,
-								?string  $userId) {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private IConfig  $config,
+		private ?string  $userId
+	) {
 		parent::__construct($appName, $request);
-		$this->config = $config;
-		$this->userId = $userId;
 	}
 
 	/**

@@ -22,7 +22,6 @@
 
 namespace OCA\Pexip\Reference;
 
-use OC\Collaboration\Reference\ReferenceManager;
 use OCP\Collaboration\Reference\ADiscoverableReferenceProvider;
 use OCP\Collaboration\Reference\Reference;
 use OCA\Pexip\AppInfo\Application;
@@ -37,11 +36,12 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 
 	private const RICH_OBJECT_TYPE = Application::APP_ID . '_call';
 
-	public function __construct(private PexipService $pexipService,
-								private IL10N $l10n,
-								private IConfig $config,
-								private IURLGenerator $urlGenerator,
-								private ReferenceManager $referenceManager) {
+	public function __construct(
+		private PexipService $pexipService,
+		private IL10N $l10n,
+		private IConfig $config,
+		private IURLGenerator $urlGenerator
+	) {
 	}
 
 	/**

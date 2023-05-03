@@ -31,16 +31,14 @@ use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
 
 class CleanupCalls extends TimedJob {
-	private LoggerInterface $logger;
-	private CallMapper $CallMapper;
 
-	public function __construct(ITimeFactory $time,
-								CallMapper $callMapper,
-								LoggerInterface $logger) {
+	public function __construct(
+		ITimeFactory $time,
+		private CallMapper $callMapper,
+		private LoggerInterface $logger
+	) {
 		parent::__construct($time);
-		$this->logger = $logger;
 		$this->setInterval(60 * 60 * 24);
-		$this->callMapper = $callMapper;
 	}
 
 	protected function run($argument) {

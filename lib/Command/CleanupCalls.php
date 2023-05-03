@@ -21,11 +21,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CleanupCalls extends Command {
 
-	private CallMapper $callMapper;
-
-	public function __construct(CallMapper $callMapper) {
+	public function __construct(private CallMapper $callMapper) {
 		parent::__construct();
-		$this->callMapper = $callMapper;
 	}
 
 	protected function configure() {
