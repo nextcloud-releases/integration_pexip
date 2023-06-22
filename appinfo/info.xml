@@ -4,7 +4,7 @@
     <name>Pexip integration</name>
     <summary>Integration of Pexip video call service</summary>
     <description><![CDATA[Pexip integration provides a smart picker provider to create
-Pexip call and immediately get a link to this call.]]></description>
+Pexip meetings and immediately get a meeting link.]]></description>
     <version>1.0.0</version>
     <licence>agpl</licence>
     <author>Julien Veyssier</author>
@@ -13,12 +13,12 @@ Pexip call and immediately get a link to this call.]]></description>
         <developer>https://github.com/julien-nc/integration_pexip</developer>
     </documentation>
     <category>integration</category>
-    <category>dashboard</category>
     <website>https://github.com/julien-nc/integration_pexip</website>
     <bugs>https://github.com/julien-nc/integration_pexip/issues</bugs>
-    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshot1.jpg</screenshot>
-    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshot2.jpg</screenshot>
-    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshot3.jpg</screenshot>
+    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshots/screenshot1.jpg</screenshot>
+    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshots/screenshot2.jpg</screenshot>
+    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshots/screenshot3.jpg</screenshot>
+    <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshots/screenshot4.jpg</screenshot>
     <dependencies>
         <nextcloud min-version="26" max-version="28"/>
     </dependencies>
