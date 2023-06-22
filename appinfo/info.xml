@@ -20,7 +20,7 @@ Pexip call and immediately get a link to this call.]]></description>
     <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshot2.jpg</screenshot>
     <screenshot>https://github.com/julien-nc/integration_pexip/raw/main/img/screenshot3.jpg</screenshot>
     <dependencies>
-        <nextcloud min-version="26" max-version="27"/>
+        <nextcloud min-version="26" max-version="28"/>
     </dependencies>
     <background-jobs>
 		<job>OCA\Pexip\Cron\CleanupCalls</job>
