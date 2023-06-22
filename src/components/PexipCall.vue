@@ -206,16 +206,16 @@ export default {
 	display: flex;
 	align-items: center;
 
+	.call-info {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
 	.header {
 		display: flex;
 		align-items: center;
-		> * {
-			display: inline;
-		}
 		.icon {
-			display: inline;
-			position: relative;
-			top: 4px;
 			margin-right: 8px;
 		}
 	}
