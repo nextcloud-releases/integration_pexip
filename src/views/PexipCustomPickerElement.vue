@@ -3,31 +3,34 @@
 		<h2>
 			{{ t('integration_pexip', 'Pexip meetings') }}
 		</h2>
-		<NcLoadingIcon v-if="loadingCalls" :size="20" />
-		<div v-else-if="calls.length > 0" class="call-list">
-			<PexipCall v-for="call in calls"
-				:key="call.pexip_id"
-				:call="call"
-				:no-link="true"
-				:no-description-label="true"
-				class="call"
-				tabindex="0"
-				@deleted="onCallDeleted(call.id)"
-				@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
-				@click.native="$emit('submit', call.link)" />
+		<div v-if="!showCreation"
+			class="call-creation">
+			<NcLoadingIcon v-if="loadingCalls" :size="20" />
+			<div v-else-if="calls.length > 0" class="call-list">
+				<PexipCall v-for="call in calls"
+					:key="call.pexip_id"
+					:call="call"
+					:no-link="true"
+					:deleteable="true"
+					class="call"
+					tabindex="0"
+					@deleted="onCallDeleted(call.id)"
+					@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
+					@click.native="$emit('submit', call.link)" />
+			</div>
+			<NcEmptyContent v-else
+				:description="t('integration_pexip', 'No meetings found')">
+				<template #icon>
+					<PexipIcon />
+				</template>
+			</NcEmptyContent>
 		</div>
-		<NcEmptyContent v-else
-			:description="t('integration_pexip', 'No meetings found')">
-			<template #icon>
-				<PexipIcon />
-			</template>
-		</NcEmptyContent>
-		<div class="creation-toggle">
+		<div v-show="!showCreation" class="creation-toggle">
 			<NcButton class="toggle-button"
 				type="tertiary"
-				@click="showCreation = !showCreation">
+				@click="showCreation = true">
 				<template #icon>
-					<component :is="showCreationIcon" />
+					<PlusIcon />
 				</template>
 				{{ t('integration_pexip', 'Create a meeting') }}
 			</NcButton>
@@ -41,23 +44,22 @@
 					id="desc"
 					:value.sync="description"
 					:maxlength="3000"
-					:placeholder="t('integration_pexip', 'Short description, max 3000 characters')"
+					:placeholder="t('integration_pexip', 'Short description (max 3000 characters)')"
 					:link-autocomplete="false" />
 			</div>
 			<div class="line">
 				<label for="pin">
 					{{ t('integration_pexip', 'Host pin') }}
+					<span v-if="allow_guests && pin === ''">
+						({{ t('integration_pexip', 'mandatory if you allow guests') }})
+					</span>
 				</label>
 				<input
 					id="pin"
 					v-model="pin"
 					type="text"
-					:placeholder="t('integration_pexip', '1234abcd...')"
+					:placeholder="t('integration_pexip', '1234abcd... (max 64 characters)')"
 					maxlength="64">
-				<InformationOutlineIcon v-if="allow_guests && pin === ''" />
-				<span v-if="allow_guests && pin === ''">
-					{{ t('integration_pexip', 'Host pin is mandatory if you allow guests') }}
-				</span>
 			</div>
 			<div class="line">
 				<NcCheckboxRadioSwitch
@@ -65,9 +67,8 @@
 					{{ t('integration_pexip', 'Allow guests') }}
 				</NcCheckboxRadioSwitch>
 			</div>
-			<div class="line">
-				<label for="guest-pin"
-					:class="{ disabled: !allow_guests }">
+			<div v-if="allow_guests" class="line">
+				<label for="guest-pin">
 					{{ t('integration_pexip', 'Guest pin') }}
 				</label>
 				<input
@@ -75,17 +76,22 @@
 					v-model="guest_pin"
 					:disabled="!allow_guests"
 					type="text"
-					:placeholder="t('integration_pexip', '1234abcd...')"
+					:placeholder="t('integration_pexip', '1234abcd... (max 64 characters)')"
 					maxlength="64">
 			</div>
-			<div class="line">
+			<div v-if="allow_guests" class="line">
 				<NcCheckboxRadioSwitch
-					:checked.sync="guests_can_present"
-					:disabled="!allow_guests">
+					:checked.sync="guests_can_present">
 					{{ t('integration_pexip', 'Guests can present') }}
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div class="creation-footer">
+				<NcButton class="cancel-button"
+					type="secondary"
+					:disabled="creating"
+					@click="showCreation = false">
+					{{ t('integration_pexip', 'Cancel') }}
+				</NcButton>
 				<NcButton class="create-button"
 					type="primary"
 					:disabled="!canCreate"
@@ -103,9 +109,7 @@
 
 <script>
 import ArrowRightIcon from 'vue-material-design-icons/ArrowRight.vue'
-import ChevronRightIcon from 'vue-material-design-icons/ChevronRight.vue'
-import ChevronDownIcon from 'vue-material-design-icons/ChevronDown.vue'
-import InformationOutlineIcon from 'vue-material-design-icons/InformationOutline.vue'
+import PlusIcon from 'vue-material-design-icons/Plus.vue'
 
 import PexipIcon from '../components/icons/PexipIcon.vue'
 
@@ -132,10 +136,8 @@ export default {
 		NcRichContenteditable,
 		NcCheckboxRadioSwitch,
 		NcEmptyContent,
-		ChevronRightIcon,
-		ChevronDownIcon,
+		PlusIcon,
 		ArrowRightIcon,
-		InformationOutlineIcon,
 	},
 
 	props: {
@@ -164,11 +166,6 @@ export default {
 	},
 
 	computed: {
-		showCreationIcon() {
-			return this.showCreation
-				? ChevronDownIcon
-				: ChevronRightIcon
-		},
 		canCreate() {
 			return !!this.description && (!this.allow_guests || !!this.pin)
 		},
@@ -252,11 +249,13 @@ export default {
 	}
 
 	.call-list {
+		width: 100%;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		flex-wrap: wrap;
 		gap: 8px;
 		.call {
+			width: 95%;
 			border: 2px solid var(--color-border);
 			border-radius: var(--border-radius-large);
 			padding: 8px;
@@ -279,15 +278,24 @@ export default {
 		width: 100%;
 		display: flex;
 		align-items: center;
-		justify-content: end;
+		justify-content: start;
 		margin-top: 12px;
 		> * {
 			margin-left: 4px;
 		}
 	}
 
+	.call-creation {
+		width: 100%;
+	}
+
 	.creation-footer {
+		width: 100%;
 		margin-top: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: end;
+		gap: 8px;
 	}
 
 	.creation-form {
@@ -296,24 +304,17 @@ export default {
 		display: flex;
 		flex-direction: column;
 		align-items: start;
+		gap: 8px;
 
 		.line {
+			width: 100%;
 			display: flex;
-			align-items: center;
-			margin: 4px 0 0 14px;
-
-			label {
-				width: 150px;
-			}
+			flex-direction: column;
 
 			input,
 			select {
 				width: 200px;
 			}
-		}
-
-		label.disabled {
-			color: var(--color-text-maxcontrast);
 		}
 
 		input[type=number] {
@@ -324,6 +325,11 @@ export default {
 		}
 
 		#desc {
+			width: 100%;
+			min-height: 70px;
+		}
+		#pin,
+		#guest-pin {
 			width: 300px;
 		}
 	}

@@ -59,7 +59,7 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 	 * @inheritDoc
 	 */
 	public function getTitle(): string {
-		return $this->l10n->t('Pexip calls');
+		return $this->l10n->t('Pexip meetings');
 	}
 
 	/**

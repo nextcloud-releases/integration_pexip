@@ -20,7 +20,10 @@
   -->
 
 <template>
-	<PexipCall :call="richObject.call" class="call-widget" />
+	<PexipCall
+		:call="richObject.call"
+		:show-creator="true"
+		class="call-widget" />
 </template>
 
 <script>

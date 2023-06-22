@@ -29,9 +29,7 @@
 		</div>
 		<div v-else class="call-info">
 			<div class="header">
-				<label v-if="!noDescriptionLabel">
-					<PexipIcon :size="20" class="icon" /><span>{{ t('integration_pexip', 'Pexip meeting') }}:&nbsp;</span>
-				</label>
+				<PexipIcon :size="20" class="icon" />
 				<span v-if="noLink"
 					class="description">
 					{{ call.description }}
@@ -44,37 +42,21 @@
 				</a>
 			</div>
 			<div class="content">
-				<div class="creator">
-					{{ t('integration_pexip', 'Creator') }}:&nbsp;
+				<div v-if="showCreator"
+					class="creator">
+					{{ t('integration_pexip', 'Pexip meeting created by') }}&nbsp;
 					<NcUserBubble
 						:primary="true"
 						:user="call.user_id"
 						:display-name="creatorDisplayName" />
 				</div>
-				<div class="host-pin">
-					<LockOutlineIcon v-if="call.pin" class="icon" :size="20" />
-					<LockOpenVariantOutlineIcon v-else class="icon" :size="20" />
-					{{ hostPinText }}
-				</div>
-				<div class="guest-allowed">
-					<AccountIcon v-if="call.allow_guests" class="icon" :size="20" />
-					<AccountOffIcon v-else class="icon" :size="20" />
-					{{ guestAllowedText }}
-				</div>
-				<div v-if="call.allow_guests" class="guest-pin">
-					<LockOutlineIcon v-if="call.guest_pin" class="icon" :size="20" />
-					<LockOpenVariantOutlineIcon v-else class="icon" :size="20" />
-					{{ guestPinText }}
-				</div>
-				<div v-if="call.allow_guests" class="guest-presentation">
-					<CardOutlineIcon v-if="call.guests_can_present" class="icon" :size="20" />
-					<CardOffOutlineIcon v-else class="icon" :size="20" />
-					{{ guestCanPresentText }}
+				<div class="details">
+					{{ detailsText }}
 				</div>
 			</div>
 		</div>
-		<div class="spacer" />
-		<NcButton v-if="canDelete && !deleted"
+		<div v-if="showDeleteButton" class="spacer" />
+		<NcButton v-if="showDeleteButton"
 			:title="t('integration_pexip', 'Delete meeting')"
 			class="delete-button"
 			@click.prevent.stop="onDelete">
@@ -87,13 +69,7 @@
 </template>
 
 <script>
-import LockOutlineIcon from 'vue-material-design-icons/LockOutline.vue'
-import LockOpenVariantOutlineIcon from 'vue-material-design-icons/LockOpenVariantOutline.vue'
-import CardOutlineIcon from 'vue-material-design-icons/CardOutline.vue'
-import CardOffOutlineIcon from 'vue-material-design-icons/CardOffOutline.vue'
 import DeleteIcon from 'vue-material-design-icons/Delete.vue'
-import AccountIcon from 'vue-material-design-icons/Account.vue'
-import AccountOffIcon from 'vue-material-design-icons/AccountOff.vue'
 
 import PexipIcon from './icons/PexipIcon.vue'
 
@@ -111,16 +87,10 @@ export default {
 
 	components: {
 		PexipIcon,
-		AccountIcon,
-		AccountOffIcon,
 		DeleteIcon,
 		NcButton,
 		NcLoadingIcon,
-		CardOffOutlineIcon,
-		CardOutlineIcon,
 		NcUserBubble,
-		LockOutlineIcon,
-		LockOpenVariantOutlineIcon,
 	},
 
 	props: {
@@ -132,7 +102,11 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		noDescriptionLabel: {
+		deleteable: {
+			type: Boolean,
+			default: false,
+		},
+		showCreator: {
 			type: Boolean,
 			default: false,
 		},
@@ -167,10 +141,38 @@ export default {
 				? t('integration_pexip', 'Guests pin')
 				: t('integration_pexip', 'No guests pin')
 		},
+		detailsText() {
+			const elements = []
+			if (this.call.pin && this.call.allow_guests && this.call.guest_pin) {
+				elements.push(t('integration_pexip', 'Host & guest pin set'))
+			} else if (!this.call.allow_guests) {
+				elements.push(
+					this.call.pin
+						? t('integration_pexip', 'Host pin set')
+						: t('integration_pexip', 'No host pin set')
+				)
+			} else {
+				// guests are allowed so host pin is necessarily set
+				elements.push(t('integration_pexip', 'Host pin set & No guest pin'))
+			}
+			if (!this.call.allow_guests) {
+				elements.push(t('integration_pexip', 'No guest access'))
+			} else {
+				elements.push(
+					this.call.guests_can_present
+						? t('integration_pexip', 'Guests can present')
+						: t('integration_pexip', 'Guests cannot present')
+				)
+			}
+			return elements.join(' · ')
+		},
 		creatorDisplayName() {
 			return getCurrentUser().uid === this.call.user_id
 				? t('integration_pexip', 'You')
 				: this.call.user_name
+		},
+		showDeleteButton() {
+			return this.deleteable && this.canDelete && !this.deleted
 		},
 	},
 
@@ -205,8 +207,8 @@ export default {
 	align-items: center;
 
 	.header {
-		//display: flex;
-		//align-items: center;
+		display: flex;
+		align-items: center;
 		> * {
 			display: inline;
 		}
@@ -224,16 +226,7 @@ export default {
 		font-weight: bold;
 	}
 	.content {
-		.host-pin,
-		.guest-pin,
-		.guest-presentation,
-		.guest-allowed {
-			display: flex;
-			align-items: center;
-			.icon {
-				margin-right: 8px;
-			}
-		}
+		margin-left: 28px;
 	}
 
 	.delete-button {
