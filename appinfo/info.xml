@@ -3,8 +3,10 @@
     <id>integration_pexip</id>
     <name>Pexip integration</name>
     <summary>Integration of Pexip video call service</summary>
-    <description><![CDATA[Pexip integration provides a smart picker provider to create
-Pexip meetings and immediately get a meeting link.]]></description>
+    <description><![CDATA[The Pexip integration app implements a Smart Picker provider to create
+Pexip meetings and immediately get a meeting link.
+
+More information in the [project's README](https://github.com/julien-nc/integration_pexip/#readme).]]></description>
     <version>1.0.0</version>
     <licence>agpl</licence>
     <author>Julien Veyssier</author>

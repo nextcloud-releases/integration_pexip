@@ -1,5 +1,7 @@
 # Pexip integration in Nextcloud
 
+https://www.pexip.com
+
 Quickly create Pexip meetings from Nextcloud.
 This app adds a Smart Picker provider to create or pick a previously created meeting.
 
@@ -10,5 +12,5 @@ https://docs.pexip.com/admin/external_policy.htm
 
 ### Admin settings
 
-There is a "Connected accounts" **admin** settings section to set your Pexip URL.
+There is a "Connected accounts" **admin** settings section to set your Pexip base URL.
 More instructions about configuration steps on the Pexip side can be found in this Nextcloud settings section.

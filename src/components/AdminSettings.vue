@@ -8,7 +8,7 @@
 			<div class="line">
 				<label for="pexip-url">
 					<LinkIcon :size="20" class="icon" />
-					{{ t('integration_pexip', 'Pexip URL') }}
+					{{ t('integration_pexip', 'Pexip base URL') }}
 				</label>
 				<input id="pexip-url"
 					v-model="state.pexip_url"
@@ -16,6 +16,10 @@
 					:placeholder="t('integration_pexip', 'https://...')"
 					@input="onInput">
 			</div>
+			<p v-if="state.pexip_url" class="settings-hint">
+				<InformationOutlineIcon :size="20" class="icon" />
+				{{ meetingLinkHint }}
+			</p>
 			<p class="settings-hint">
 				<InformationOutlineIcon :size="20" class="icon" />
 				{{ configHint }}
@@ -56,8 +60,11 @@ export default {
 
 	computed: {
 		configHint() {
-
 			return t('integration_pexip', 'On the Pexip side, the "policy server URI" must be set to {policyUri}', { policyUri: this.policyUri })
+		},
+		meetingLinkHint() {
+			const linkExample = this.state.pexip_url + '/webapp3/m/MEETING_ID'
+			return t('integration_pexip', 'Nextcloud will generate meeting links like {linkExample}', { linkExample })
 		},
 	},
 
