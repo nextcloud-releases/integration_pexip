@@ -38,28 +38,25 @@
 		<div v-show="showCreation" class="creation-form">
 			<div class="line">
 				<label for="desc">
-					{{ t('integration_pexip', 'Description') }}
+					{{ t('integration_pexip', 'Name') }}
 				</label>
 				<NcRichContenteditable
 					id="desc"
 					:value.sync="description"
 					:maxlength="3000"
-					:placeholder="t('integration_pexip', 'Short description (max 3000 characters)')"
+					:placeholder="t('integration_pexip', 'Meeting name (max 3000 characters)')"
 					:link-autocomplete="false" />
 			</div>
 			<div class="line">
-				<label for="pin">
-					{{ t('integration_pexip', 'Host pin') }}
-					<span v-if="allow_guests && pin === ''">
-						({{ t('integration_pexip', 'mandatory if you allow guests') }})
-					</span>
-				</label>
-				<input
+				<NcPasswordField
 					id="pin"
-					v-model="pin"
-					type="text"
-					:placeholder="t('integration_pexip', '1234abcd... (max 64 characters)')"
-					maxlength="64">
+					class="pinInput"
+					:value.sync="pin"
+					:maxlength="20"
+					:error="!isHostPinValid"
+					:label="hostPinLabel"
+					:label-visible="true"
+					:helper-text="t('integration_pexip', 'Between 4 and 20 digits or #')" />
 			</div>
 			<div class="line">
 				<NcCheckboxRadioSwitch
@@ -68,16 +65,16 @@
 				</NcCheckboxRadioSwitch>
 			</div>
 			<div v-if="allow_guests" class="line">
-				<label for="guest-pin">
-					{{ t('integration_pexip', 'Guest pin') }}
-				</label>
-				<input
-					id="guest-pin"
-					v-model="guest_pin"
+				<NcPasswordField
+					id="pin"
+					class="pinInput"
+					:value.sync="guest_pin"
+					:maxlength="20"
 					:disabled="!allow_guests"
-					type="text"
-					:placeholder="t('integration_pexip', '1234abcd... (max 64 characters)')"
-					maxlength="64">
+					:error="!isGuestPinValid"
+					:label="t('integration_pexip', 'Guest pin')"
+					:label-visible="true"
+					:helper-text="t('integration_pexip', 'Between 4 and 20 digits or #')" />
 			</div>
 			<div v-if="allow_guests" class="line">
 				<NcCheckboxRadioSwitch
@@ -118,6 +115,7 @@ import NcLoadingIcon from '@nextcloud/vue/dist/Components/NcLoadingIcon.js'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/dist/Components/NcCheckboxRadioSwitch.js'
 import NcRichContenteditable from '@nextcloud/vue/dist/Components/NcRichContenteditable.js'
 import NcEmptyContent from '@nextcloud/vue/dist/Components/NcEmptyContent.js'
+import NcPasswordField from '@nextcloud/vue/dist/Components/NcPasswordField.js'
 
 import PexipCall from '../components/PexipCall.vue'
 
@@ -136,6 +134,7 @@ export default {
 		NcRichContenteditable,
 		NcCheckboxRadioSwitch,
 		NcEmptyContent,
+		NcPasswordField,
 		PlusIcon,
 		ArrowRightIcon,
 	},
@@ -167,7 +166,21 @@ export default {
 
 	computed: {
 		canCreate() {
-			return !!this.description && (!this.allow_guests || !!this.pin)
+			return !!this.description
+				&& (!this.allow_guests || !!this.pin)
+				&& this.isHostPinValid
+				&& this.isGuestPinValid
+		},
+		isHostPinValid() {
+			return this.isPinValid(this.pin)
+		},
+		isGuestPinValid() {
+			return this.isPinValid(this.guest_pin)
+		},
+		hostPinLabel() {
+			return (this.allow_guests && this.pin === '')
+				? t('integration_pexip', 'Host pin (mandatory if you allow guests)')
+				: t('integration_pexip', 'Host pin')
 		},
 	},
 
@@ -179,6 +192,12 @@ export default {
 	},
 
 	methods: {
+		isPinValid(value) {
+			return value.length === 0
+				|| (value.length <= 20
+					&& value.length >= 4
+					&& value.match(/[^0-9#]/) === null)
+		},
 		getCalls() {
 			this.loadingCalls = true
 			const url = generateUrl('/apps/integration_pexip/calls')
@@ -328,8 +347,7 @@ export default {
 			width: 100%;
 			min-height: 70px;
 		}
-		#pin,
-		#guest-pin {
+		.pinInput {
 			width: 300px;
 		}
 	}

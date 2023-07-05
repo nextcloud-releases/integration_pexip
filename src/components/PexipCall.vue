@@ -35,7 +35,7 @@
 					{{ call.description }}
 				</span>
 				<a v-else
-					:href="call.link"
+					:href="callLink"
 					target="_blank"
 					class="description">
 					{{ call.description }}
@@ -114,13 +114,23 @@ export default {
 
 	data() {
 		return {
-			canDelete: getCurrentUser().uid === this.call.user_id,
+			canDelete: getCurrentUser()?.uid === this.call.user_id,
 			deleting: false,
 			deleted: false,
 		}
 	},
 
 	computed: {
+		callLink() {
+			const url = new URL(this.call.link)
+			const user = getCurrentUser()
+			if (user?.displayName) {
+				url.searchParams.append('name', user.displayName)
+			} else {
+				url.searchParams.append('name', user?.uid)
+			}
+			return url.href
+		},
 		guestAllowedText() {
 			return this.call.allow_guests
 				? t('integration_pexip', 'Guests allowed')
