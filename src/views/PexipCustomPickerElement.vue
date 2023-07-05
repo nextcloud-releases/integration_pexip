@@ -1,104 +1,106 @@
 <template>
-	<div class="pexip-picker-content">
-		<h2>
-			{{ t('integration_pexip', 'Pexip meetings') }}
-		</h2>
-		<div v-if="!showCreation"
-			class="call-creation">
-			<NcLoadingIcon v-if="loadingCalls" :size="20" />
-			<div v-else-if="calls.length > 0" class="call-list">
-				<PexipCall v-for="call in calls"
-					:key="call.pexip_id"
-					:call="call"
-					:no-link="true"
-					:deleteable="true"
-					class="call"
-					tabindex="0"
-					@deleted="onCallDeleted(call.id)"
-					@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
-					@click.native="$emit('submit', call.link)" />
-			</div>
-			<NcEmptyContent v-else
-				:description="t('integration_pexip', 'No meetings found')">
-				<template #icon>
-					<PexipIcon />
-				</template>
-			</NcEmptyContent>
-		</div>
-		<div v-show="!showCreation" class="creation-toggle">
-			<NcButton class="toggle-button"
-				type="tertiary"
-				@click="showCreation = true">
-				<template #icon>
-					<PlusIcon />
-				</template>
-				{{ t('integration_pexip', 'Create a meeting') }}
-			</NcButton>
-		</div>
-		<div v-show="showCreation" class="creation-form">
-			<div class="line">
-				<label for="desc">
-					{{ t('integration_pexip', 'Name') }}
-				</label>
-				<NcRichContenteditable
-					id="desc"
-					:value.sync="description"
-					:maxlength="3000"
-					:placeholder="t('integration_pexip', 'Meeting name (max 3000 characters)')"
-					:link-autocomplete="false" />
-			</div>
-			<div class="line">
-				<NcPasswordField
-					id="pin"
-					class="pinInput"
-					:value.sync="pin"
-					:maxlength="20"
-					:error="!isHostPinValid"
-					:label="hostPinLabel"
-					:label-visible="true"
-					:helper-text="pinHelper" />
-			</div>
-			<div class="line">
-				<NcCheckboxRadioSwitch
-					:checked.sync="allow_guests">
-					{{ t('integration_pexip', 'Allow guests') }}
-				</NcCheckboxRadioSwitch>
-			</div>
-			<div v-if="allow_guests" class="line">
-				<NcPasswordField
-					id="pin"
-					class="pinInput"
-					:value.sync="guest_pin"
-					:maxlength="20"
-					:disabled="!allow_guests"
-					:error="!isGuestPinValid"
-					:label="t('integration_pexip', 'Guest pin')"
-					:label-visible="true"
-					:helper-text="pinHelper" />
-			</div>
-			<div v-if="allow_guests" class="line">
-				<NcCheckboxRadioSwitch
-					:checked.sync="guests_can_present">
-					{{ t('integration_pexip', 'Guests can present') }}
-				</NcCheckboxRadioSwitch>
-			</div>
-			<div class="creation-footer">
-				<NcButton class="cancel-button"
-					type="secondary"
-					:disabled="creating"
-					@click="showCreation = false">
-					{{ t('integration_pexip', 'Cancel') }}
-				</NcButton>
-				<NcButton class="create-button"
-					type="primary"
-					:disabled="!canCreate"
-					@click="onCreate">
+	<div class="pexip-picker-content-wrapper">
+		<div class="pexip-picker-content">
+			<h2>
+				{{ t('integration_pexip', 'Pexip meetings') }}
+			</h2>
+			<div v-if="!showCreation"
+				class="call-list-wrapper">
+				<NcLoadingIcon v-if="loadingCalls" :size="20" />
+				<div v-else-if="calls.length > 0" class="call-list">
+					<PexipCall v-for="call in calls"
+						:key="call.pexip_id"
+						:call="call"
+						:no-link="true"
+						:deleteable="true"
+						class="call"
+						tabindex="0"
+						@deleted="onCallDeleted(call.id)"
+						@keydown.native.enter.prevent.stop="$emit('submit', call.link)"
+						@click.native="$emit('submit', call.link)" />
+				</div>
+				<NcEmptyContent v-else
+					:description="t('integration_pexip', 'No meetings found')">
 					<template #icon>
-						<NcLoadingIcon v-if="creating" />
-						<ArrowRightIcon v-else />
+						<PexipIcon />
 					</template>
-					{{ t('integration_pexip', 'Create') }}
+				</NcEmptyContent>
+			</div>
+			<div v-show="!showCreation" class="creation-toggle">
+				<NcButton class="toggle-button"
+					type="tertiary"
+					@click="showCreation = true">
+					<template #icon>
+						<PlusIcon />
+					</template>
+					{{ t('integration_pexip', 'Create a meeting') }}
 				</NcButton>
+			</div>
+			<div v-show="showCreation" class="creation-form">
+				<div class="line">
+					<label for="desc">
+						{{ t('integration_pexip', 'Name') }}
+					</label>
+					<NcRichContenteditable
+						id="desc"
+						:value.sync="description"
+						:maxlength="3000"
+						:placeholder="t('integration_pexip', 'Meeting name (max 3000 characters)')"
+						:link-autocomplete="false" />
+				</div>
+				<div class="line">
+					<NcPasswordField
+						id="pin"
+						class="pinInput"
+						:value.sync="pin"
+						:maxlength="20"
+						:error="!isHostPinValid"
+						:label="hostPinLabel"
+						:label-visible="true"
+						:helper-text="pinHelper" />
+				</div>
+				<div class="line">
+					<NcCheckboxRadioSwitch
+						:checked.sync="allow_guests">
+						{{ t('integration_pexip', 'Allow guests') }}
+					</NcCheckboxRadioSwitch>
+				</div>
+				<div v-if="allow_guests" class="line">
+					<NcPasswordField
+						id="pin"
+						class="pinInput"
+						:value.sync="guest_pin"
+						:maxlength="20"
+						:disabled="!allow_guests"
+						:error="!isGuestPinValid"
+						:label="t('integration_pexip', 'Guest pin')"
+						:label-visible="true"
+						:helper-text="pinHelper" />
+				</div>
+				<div v-if="allow_guests" class="line">
+					<NcCheckboxRadioSwitch
+						:checked.sync="guests_can_present">
+						{{ t('integration_pexip', 'Guests can present') }}
+					</NcCheckboxRadioSwitch>
+				</div>
+				<div class="creation-footer">
+					<NcButton class="cancel-button"
+						type="secondary"
+						:disabled="creating"
+						@click="showCreation = false">
+						{{ t('integration_pexip', 'Cancel') }}
+					</NcButton>
+					<NcButton class="create-button"
+						type="primary"
+						:disabled="!canCreate"
+						@click="onCreate">
+						<template #icon>
+							<NcLoadingIcon v-if="creating" />
+							<ArrowRightIcon v-else />
+						</template>
+						{{ t('integration_pexip', 'Create') }}
+					</NcButton>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -253,8 +255,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.pexip-picker-content {
+.pexip-picker-content-wrapper {
 	width: 100%;
+}
+
+.pexip-picker-content {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -307,7 +312,7 @@ export default {
 		}
 	}
 
-	.call-creation {
+	.call-list-wrapper {
 		width: 100%;
 	}
 
@@ -322,7 +327,7 @@ export default {
 
 	.creation-form {
 		width: 100%;
-		padding: 12px 0;
+		padding-top: 12px;
 		display: flex;
 		flex-direction: column;
 		align-items: start;
