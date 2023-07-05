@@ -56,7 +56,7 @@
 					:error="!isHostPinValid"
 					:label="hostPinLabel"
 					:label-visible="true"
-					:helper-text="t('integration_pexip', 'Between 4 and 20 digits or #')" />
+					:helper-text="pinHelper" />
 			</div>
 			<div class="line">
 				<NcCheckboxRadioSwitch
@@ -74,7 +74,7 @@
 					:error="!isGuestPinValid"
 					:label="t('integration_pexip', 'Guest pin')"
 					:label-visible="true"
-					:helper-text="t('integration_pexip', 'Between 4 and 20 digits or #')" />
+					:helper-text="pinHelper" />
 			</div>
 			<div v-if="allow_guests" class="line">
 				<NcCheckboxRadioSwitch
@@ -161,6 +161,7 @@ export default {
 			allow_guests: false,
 			guest_pin: '',
 			guests_can_present: false,
+			pinHelper: t('integration_pexip', 'Between 4 and 20 digits optionally endind with one or more #'),
 		}
 	},
 
@@ -196,7 +197,9 @@ export default {
 			return value.length === 0
 				|| (value.length <= 20
 					&& value.length >= 4
-					&& value.match(/[^0-9#]/) === null)
+					&& value.match(/[^0-9#]/) === null
+					// # are only allowed at the end
+					&& value.match(/^[^#]*#*$/) !== null)
 		},
 		getCalls() {
 			this.loadingCalls = true

@@ -37,8 +37,19 @@
 				<a v-else
 					:href="callLink"
 					target="_blank"
-					class="description">
+					class="description"
+					:title="callLink">
 					{{ call.description }}
+				</a>
+				<div v-if="!noLink" class="spacer" />
+				<a v-if="!noLink"
+					:href="callLink"
+					target="_blank"
+					class="joinButton"
+					:title="callLink">
+					<NcButton type="primary">
+						{{ t('integration_pexip', 'Join meeting') }}
+					</NcButton>
 				</a>
 			</div>
 			<div class="content">
@@ -126,8 +137,11 @@ export default {
 			const user = getCurrentUser()
 			if (user?.displayName) {
 				url.searchParams.append('name', user.displayName)
-			} else {
-				url.searchParams.append('name', user?.uid)
+			} else if (user?.uid) {
+				url.searchParams.append('name', user.uid)
+			}
+			if (this.call.guest_pin) {
+				url.searchParams.append('pin', this.call.guest_pin)
 			}
 			return url.href
 		},
@@ -177,7 +191,7 @@ export default {
 			return elements.join(' · ')
 		},
 		creatorDisplayName() {
-			return getCurrentUser().uid === this.call.user_id
+			return getCurrentUser()?.uid === this.call.user_id
 				? t('integration_pexip', 'You')
 				: this.call.user_name
 		},
@@ -217,9 +231,14 @@ export default {
 	align-items: center;
 
 	.call-info {
+		width: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
+
+		.joinButton {
+			margin-left: 12px;
+		}
 	}
 
 	.header {
