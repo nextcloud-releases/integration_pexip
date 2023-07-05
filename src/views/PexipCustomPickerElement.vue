@@ -255,6 +255,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+:deep(.rich-contenteditable__input--empty::before) {
+	position: relative !important;
+}
+
 .pexip-picker-content-wrapper {
 	width: 100%;
 }
