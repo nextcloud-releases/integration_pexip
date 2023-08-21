@@ -139,8 +139,12 @@ class CallMapper extends QBMapper {
 		$call->setDescription($description);
 		$call->setPin($pin);
 		$call->setGuestPin($guestPin);
-		$call->setGuestsCanPresent($guestsCanPresent);
-		$call->setAllowGuests($allowGuests);
+		if ($guestsCanPresent) {
+			$call->setGuestsCanPresent($guestsCanPresent);
+		}
+		if ($allowGuests) {
+			$call->setAllowGuests($allowGuests);
+		}
 		if ($lastUsedTimestamp === null) {
 			$lastUsedTimestamp = (new DateTime())->getTimestamp();
 		}
