@@ -7,7 +7,7 @@
 Pexip meetings and immediately get a meeting link.
 
 More information in the [project's README](https://github.com/julien-nc/integration_pexip/#readme).]]></description>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
     <licence>agpl</licence>
     <author>Julien Veyssier</author>
     <namespace>Pexip</namespace>
