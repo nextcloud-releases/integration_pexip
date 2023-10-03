@@ -92,12 +92,12 @@ class PexipService {
 	}
 
 	/**
-	 * @param string $pexipurl
+	 * @param string $pexipUrl
 	 * @param string $pexipId
 	 * @return string
 	 */
 	private function getCallLink(string $pexipUrl, string $pexipId): string {
-		return trim($pexipUrl, " \n\r\t\v\x00/") . '/webapp3/m/' . $pexipId;
+		return trim($pexipUrl, " \n\r\t\v\x00/") . '/webapp3/m/' . $pexipId . '/express';
 	}
 
 	/**

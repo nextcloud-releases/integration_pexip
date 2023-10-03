@@ -63,7 +63,7 @@ export default {
 			return t('integration_pexip', 'On the Pexip side, the "policy server URI" must be set to {policyUri}', { policyUri: this.policyUri })
 		},
 		meetingLinkHint() {
-			const linkExample = this.state.pexip_url + '/webapp3/m/MEETING_ID'
+			const linkExample = this.state.pexip_url + '/webapp3/m/MEETING_ID/express'
 			return t('integration_pexip', 'Nextcloud will generate meeting links like {linkExample}', { linkExample })
 		},
 	},

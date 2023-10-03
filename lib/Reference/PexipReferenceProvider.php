@@ -132,8 +132,10 @@ class PexipReferenceProvider extends ADiscoverableReferenceProvider  {
 		$pexipUrl = $this->config->getAppValue(Application::APP_ID, 'pexip_url');
 			$this->urlGenerator->getAbsoluteURL('/apps/' . Application::APP_ID);
 
-		// link example: https://pexip.example/webapp3/m/3jf5wq3hibbqvickir7ysqehfi
-		preg_match('/^' . preg_quote($pexipUrl, '/') . '\/webapp3\/m\/([0-9a-z]+)$/i', $url, $matches);
+		// link examples:
+		// https://pexip.example/webapp3/m/3jf5wq3hibbqvickir7ysqehfi
+		// https://pexip.example/webapp3/m/3jf5wq3hibbqvickir7ysqehfi/express
+		preg_match('/^' . preg_quote($pexipUrl, '/') . '\/webapp3\/m\/([0-9a-z]+)(?:\/express)?$/i', $url, $matches);
 		if (count($matches) > 1) {
 			return $matches[1];
 		}
