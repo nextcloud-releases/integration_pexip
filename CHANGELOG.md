@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## 1.0.4 – 2023-10-03
+
+### Changed
+
+- update npm pkgs
+
+### Fixed
+
+- append "/express" to links, adjust reference provider
+
 ## 1.0.3 – 2023-08-22
 
 ### Fixed
