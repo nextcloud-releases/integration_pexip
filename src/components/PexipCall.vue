@@ -173,7 +173,7 @@ export default {
 				elements.push(
 					this.call.pin
 						? t('integration_pexip', 'Host pin set')
-						: t('integration_pexip', 'No host pin set')
+						: t('integration_pexip', 'No host pin set'),
 				)
 			} else {
 				// guests are allowed so host pin is necessarily set
@@ -185,7 +185,7 @@ export default {
 				elements.push(
 					this.call.guests_can_present
 						? t('integration_pexip', 'Guests can present')
-						: t('integration_pexip', 'Guests cannot present')
+						: t('integration_pexip', 'Guests cannot present'),
 				)
 			}
 			return elements.join(' · ')

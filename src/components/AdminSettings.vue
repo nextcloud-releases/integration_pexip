@@ -94,7 +94,7 @@ export default {
 				.catch((error) => {
 					showError(
 						t('integration_pexip', 'Failed to save Pexip admin options')
-						+ ': ' + error.response?.request?.responseText
+						+ ': ' + error.response?.request?.responseText,
 					)
 				})
 		},
